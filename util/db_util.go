@@ -26,7 +26,7 @@ func init() {
 	dbUri := fmt.Sprintf("host=%s user=%s dbname=%s port=%s sslmode=disable password=%s", dbHost, username, dbName, dbPort, password)
 	fmt.Println(dbUri)
 
-	conn, err := gorm.Open(postgres.Open(dbUri), &gorm.Config{
+	gormDb, err := gorm.Open(postgres.Open(dbUri), &gorm.Config{
 		NamingStrategy: schema.NamingStrategy{
 			SingularTable: true,
 		},
@@ -35,7 +35,10 @@ func init() {
 		fmt.Print(err)
 	}
 
-	db = conn
+	db = gormDb
+	sqlDB, _ := db.DB()
+	sqlDB.SetMaxIdleConns(2)
+	sqlDB.SetMaxOpenConns(5)
 }
 
 func GetDB() *gorm.DB {
